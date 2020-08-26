@@ -9,16 +9,12 @@ class S3OutputTest < Test::Unit::TestCase
       Fluent::Test.setup
     end
   
-    CONFIG = %[
-      s3_bucket test_bucket
-      store_as arrow
-      <compress>
-        schema [
-          {"name": "test_string", "type": "string"},
-          {"name": "test_uint64", "type": "uint64"}
-        ]
-      </compress>
+    S3_CONFIG = {"s3_bucket" => "test", "store_as" => "arrow"}
+    SCHEMA = [
+      {"name": "test_string", "type": "string"},
+      {"name": "test_uint64", "type": "uint64"},
     ]
+    CONFIG = config_element("ROOT", "", S3_CONFIG, [config_element("compress", "", {"schema" => SCHEMA})])
 
     def test_configure
       d = create_driver
@@ -29,20 +25,14 @@ class S3OutputTest < Test::Unit::TestCase
       assert_equal 1024, c.instance_variable_get(:@compress).arrow_chunk_size
     end
 
+    data('arrow_snappy': ['arrow', 'snappy'])
     def test_invalid_configure
-      config = config_element("ROOT", "", {
-        "s3_bucket" => "test_bucket",
-        "store_as" => "arrow",
-      },[
-          config_element("compress", "", {
-            "schema" => [
-              {"name": "test_string", "type": "string"},
-              {"name": "test_uint64", "type": "uint64"},
-            ],
-            "arrow_format" => "arrow",
-            "arrow_compression" => "snappy",
-          })
-      ])
+      format, compression = data
+      arrow_config = config_element("compress", "", { "schema" => SCHEMA,
+        "arrow_format" => format,
+        "arrow_compression" => compression,
+      })
+      config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
       assert_raise Fluent::ConfigError do
         create_driver(config)
       end
@@ -70,18 +60,10 @@ class S3OutputTest < Test::Unit::TestCase
 
     data(gzip: "gzip", zstd: "zstd")
     def test_compress_with_arrow_compression
-      config = config_element("ROOT", "", {
-        "s3_bucket" => "test_bucket",
-        "store_as" => "arrow",
-      },[
-          config_element("compress", "", {
-            "schema" => [
-              {"name": "test_string", "type": "string"},
-              {"name": "test_uint64", "type": "uint64"},
-            ],
-            "arrow_compression" => data,
-          })
-      ])
+      arrow_config = config_element("compress", "", { "schema" => SCHEMA,
+        "arrow_compression" => data,
+      })
+      config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
 
       d = create_driver(conf=config)
       c = d.instance.instance_variable_get(:@compressor)
@@ -105,20 +87,12 @@ class S3OutputTest < Test::Unit::TestCase
     end
 
     data(gzip: "gzip", snappy: "snappy", zstd: "zstd")
-    def test_compress_with_parquet
-      config = config_element("ROOT", "", {
-        "s3_bucket" => "test_bucket",
-        "store_as" => "arrow",
-      },[
-          config_element("compress", "", {
-            "schema" => [
-              {"name": "test_string", "type": "string"},
-              {"name": "test_uint64", "type": "uint64"},
-            ],
-            "arrow_format" => "parquet",
-            "arrow_compression" => data,
-          })
-      ])
+    def test_compress_with_format
+      arrow_config = config_element("compress", "", { "schema" => SCHEMA,
+        "arrow_format" => "parquet",
+        "arrow_compression" => data,
+      })
+      config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
 
       d = create_driver(conf=config)
       c = d.instance.instance_variable_get(:@compressor)
