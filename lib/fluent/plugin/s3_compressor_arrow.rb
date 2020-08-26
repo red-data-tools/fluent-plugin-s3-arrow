@@ -8,12 +8,13 @@ module Fluent::Plugin
       S3Output.register_compressor('arrow', self)
 
       INVALID＿COMBINATIONS = {
-        :arrow => :snappy
+        :arrow => [:snappy],
+        :feather => [:gzip, :snappy],
       }
 
       config_section :compress, multi: false do
         config_param :schema, :array
-        config_param :arrow_format, :enum, list: [:arrow, :parquet], default: :arrow
+        config_param :arrow_format, :enum, list: [:arrow, :feather, :parquet], default: :arrow
         SUPPORTED_COMPRESSION = [:gzip, :snappy, :zstd]
         config_param :arrow_compression, :enum, list: SUPPORTED_COMPRESSION, default: nil
         config_param :arrow_chunk_size, :integer, default: 1024
@@ -23,7 +24,7 @@ module Fluent::Plugin
         super
 
         @arrow_schema = ::Arrow::Schema.new(@compress.schema)
-        if INVALID＿COMBINATIONS[@compress.arrow_format] == @compress.arrow_compression
+        if INVALID＿COMBINATIONS[@compress.arrow_format]&.include? @compress.arrow_compression
           raise Fluent::ConfigError, "#{@compress.arrow_format} unsupported with #{@compress.arrow_format}"
         end
       end

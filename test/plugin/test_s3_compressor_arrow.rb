@@ -25,7 +25,11 @@ class S3OutputTest < Test::Unit::TestCase
       assert_equal 1024, c.instance_variable_get(:@compress).arrow_chunk_size
     end
 
-    data('arrow_snappy': ['arrow', 'snappy'])
+    data(
+      'arrow_snappy':   ['arrow', 'snappy'],
+      'feather_gzip':   ['feather', 'gzip'],
+      'feather_snappy': ['feather', 'snappy'],
+    )
     def test_invalid_configure
       format, compression = data
       arrow_config = config_element("compress", "", { "schema" => SCHEMA,
@@ -86,11 +90,17 @@ class S3OutputTest < Test::Unit::TestCase
       end
     end
 
-    data(gzip: "gzip", snappy: "snappy", zstd: "zstd")
+    data(
+      'parquet_gzip':   ['parquet', 'gzip'],
+      'parquet_snappy': ['parquet', 'snappy'],
+      'parquet_zstd':   ['parquet', 'zstd'],
+      'feather_zstd':   ['feather', 'zstd'],
+    )
     def test_compress_with_format
+      format, compression = data
       arrow_config = config_element("compress", "", { "schema" => SCHEMA,
-        "arrow_format" => "parquet",
-        "arrow_compression" => data,
+        "arrow_format" => format,
+        "arrow_compression" => compression,
       })
       config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
 
@@ -104,7 +114,7 @@ class S3OutputTest < Test::Unit::TestCase
       
       Tempfile.create do |tmp|
         c.compress(chunk, tmp)
-        table = Arrow::Table.load(tmp.path, format: :parquet, compress: data.to_sym)
+        table = Arrow::Table.load(tmp.path, format: format.to_sym, compress: compression.to_sym)
         table.each_record_batch do |record_batch|
           assert_equal([d1, d2], record_batch.collect(&:to_h))
         end
