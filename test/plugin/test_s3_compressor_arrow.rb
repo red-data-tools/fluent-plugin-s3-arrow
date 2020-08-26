@@ -29,6 +29,25 @@ class S3OutputTest < Test::Unit::TestCase
       assert_equal 1024, c.instance_variable_get(:@compress).arrow_chunk_size
     end
 
+    def test_invalid_configure
+      config = config_element("ROOT", "", {
+        "s3_bucket" => "test_bucket",
+        "store_as" => "arrow",
+      },[
+          config_element("compress", "", {
+            "schema" => [
+              {"name": "test_string", "type": "string"},
+              {"name": "test_uint64", "type": "uint64"},
+            ],
+            "arrow_format" => "arrow",
+            "arrow_compression" => "snappy",
+          })
+      ])
+      assert_raise Fluent::ConfigError do
+        create_driver(config)
+      end
+    end
+
     def test_compress
       d = create_driver
       c = d.instance.instance_variable_get(:@compressor)
@@ -49,20 +68,59 @@ class S3OutputTest < Test::Unit::TestCase
       end
     end
 
-    PARQUET_CONFIG = %[
-      s3_bucket test_bucket
-      store_as arrow
-      <compress>
-        arrow_format parquet
-        schema [
-          {"name": "test_string", "type": "string"},
-          {"name": "test_uint64", "type": "uint64"}
-        ]
-      </compress>
-    ]
+    data(gzip: "gzip", zstd: "zstd")
+    def test_compress_with_arrow_compression
+      config = config_element("ROOT", "", {
+        "s3_bucket" => "test_bucket",
+        "store_as" => "arrow",
+      },[
+          config_element("compress", "", {
+            "schema" => [
+              {"name": "test_string", "type": "string"},
+              {"name": "test_uint64", "type": "uint64"},
+            ],
+            "arrow_compression" => data,
+          })
+      ])
 
+      d = create_driver(conf=config)
+      c = d.instance.instance_variable_get(:@compressor)
+
+      chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
+      d1 = {"test_string" => 'record1', "test_uint64" => 1}
+      d2 = {"test_string" => 'record2', "test_uint64" => 2}
+      chunk.append([d1.to_msgpack, d2.to_msgpack])
+      codec = Arrow::Codec.new(data.to_sym)
+      
+      Tempfile.create do |tmp|
+        c.compress(chunk, tmp)
+        raw_input = Arrow::MemoryMappedInputStream.open(tmp.path)
+        Arrow::CompressedInputStream.new(codec,raw_input) do |input|
+          reader = Arrow::RecordBatchFileReader.new(input)
+          reader.each do |record_batch|
+            assert_equal([d1, d2], record_batch.collect(&:to_h))
+          end
+        end
+      end
+    end
+
+    data(gzip: "gzip", snappy: "snappy", zstd: "zstd")
     def test_compress_with_parquet
-      d = create_driver(conf=PARQUET_CONFIG)
+      config = config_element("ROOT", "", {
+        "s3_bucket" => "test_bucket",
+        "store_as" => "arrow",
+      },[
+          config_element("compress", "", {
+            "schema" => [
+              {"name": "test_string", "type": "string"},
+              {"name": "test_uint64", "type": "uint64"},
+            ],
+            "arrow_format" => "parquet",
+            "arrow_compression" => data,
+          })
+      ])
+
+      d = create_driver(conf=config)
       c = d.instance.instance_variable_get(:@compressor)
 
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
@@ -72,7 +130,7 @@ class S3OutputTest < Test::Unit::TestCase
       
       Tempfile.create do |tmp|
         c.compress(chunk, tmp)
-        table = Arrow::Table.load(tmp.path, format: :parquet)
+        table = Arrow::Table.load(tmp.path, format: :parquet, compress: data.to_sym)
         table.each_record_batch do |record_batch|
           assert_equal([d1, d2], record_batch.collect(&:to_h))
         end
