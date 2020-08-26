@@ -1,0 +1,13 @@
+name: "test"
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: 'Test with docker'
+      run: |
+        docker build -t fluent-plugin-s3-arrow .
+        docker run fluent-plugin-s3-arrow /bin/bash -c "bundle exec rake test"
