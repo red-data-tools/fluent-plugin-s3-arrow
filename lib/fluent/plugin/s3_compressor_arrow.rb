@@ -39,7 +39,7 @@ module Fluent::Plugin
 
       def compress(chunk, tmp)
         msg = ::Fluent::MessagePackFactory.unpacker.feed(chunk.read)
-        array = msg.each.to_a
+        record_batch = ::Arrow::RecordBatch.new(@arrow_schema, msg.each.to_a)
       end
     end
   end
