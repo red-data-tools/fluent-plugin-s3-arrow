@@ -42,7 +42,7 @@ Example of fluent-plugin-s3 configuration.
   # fluent-plugin-s3 configurations ...
 
   <format>
-    @type msgpack # This plugin currently supports only msgpack formatter.
+    @type json # This plugin currently supports only json formatter.
   </format>
 
   store_as arrow

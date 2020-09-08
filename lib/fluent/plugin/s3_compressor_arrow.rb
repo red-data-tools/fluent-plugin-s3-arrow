@@ -1,6 +1,5 @@
 require 'arrow'
 require 'parquet'
-require 'fluent/msgpack_factory'
 
 module Fluent::Plugin
   class S3Output
@@ -38,10 +37,11 @@ module Fluent::Plugin
       end
 
       def compress(chunk, tmp)
-        msg = ::Fluent::MessagePackFactory.unpacker.feed(chunk.read)
-        record_batch = ::Arrow::RecordBatch.new(@arrow_schema, msg.each.to_a)
-        
-        record_batch.to_table.save(tmp,
+        buffer = Arrow::Buffer.new(chunk.read)
+        stream = Arrow::BufferInputStream.new(buffer)
+        table = Arrow::JSONReader.new(stream)
+
+        table.read.save(tmp,
           format: @compress.arrow_format,
           chunk_size: @compress.arrow_chunk_size,
           compression: @compress.arrow_compression,

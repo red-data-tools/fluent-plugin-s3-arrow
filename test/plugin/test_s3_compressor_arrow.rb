@@ -1,5 +1,5 @@
 require "helper"
-require 'msgpack'
+require 'json'
 require "fluent/plugin/out_s3"
 require "fluent/plugin/s3_compressor_arrow"
 require "fluent/plugin/output"
@@ -49,7 +49,7 @@ class S3OutputTest < Test::Unit::TestCase
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
       d1 = {"test_string" => 'record1', "test_uint64" => 1}
       d2 = {"test_string" => 'record2', "test_uint64" => 2}
-      chunk.append([d1.to_msgpack, d2.to_msgpack])
+      chunk.append([d1.to_json, d2.to_json])
       
       Tempfile.create do |tmp|
         c.compress(chunk, tmp)
@@ -75,7 +75,7 @@ class S3OutputTest < Test::Unit::TestCase
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
       d1 = {"test_string" => 'record1', "test_uint64" => 1}
       d2 = {"test_string" => 'record2', "test_uint64" => 2}
-      chunk.append([d1.to_msgpack, d2.to_msgpack])
+      chunk.append([d1.to_json, d2.to_json])
       codec = Arrow::Codec.new(data.to_sym)
       
       Tempfile.create do |tmp|
@@ -110,7 +110,7 @@ class S3OutputTest < Test::Unit::TestCase
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
       d1 = {"test_string" => 'record1', "test_uint64" => 1}
       d2 = {"test_string" => 'record2', "test_uint64" => 2}
-      chunk.append([d1.to_msgpack, d2.to_msgpack])
+      chunk.append([d1.to_json, d2.to_json])
       
       Tempfile.create do |tmp|
         c.compress(chunk, tmp)
