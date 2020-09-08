@@ -1,7 +1,7 @@
 FROM ruby:2.7-buster
 
 RUN apt update && \
-    apt install -y -V ca-certificates lsb-release wget && \
+    apt install -y -V ca-certificates lsb-release wget time gzip && \
     wget https://apache.bintray.com/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb && \
     apt install -y -V ./apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb
 
