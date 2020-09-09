@@ -7,7 +7,7 @@ prelude: |-
   require "fluent/test"
   require "fluent/test/driver/output"
   require "fluent/test/helpers"
-  require 'msgpack'
+  require 'json'
   require "fluent/plugin/out_s3"
   require "fluent/plugin/s3_compressor_arrow"
 
@@ -41,7 +41,7 @@ prelude: |-
   d2 = {"test_string" => 'record2', "test_uint64" => 2}
 
   while chunk.bytesize < 1048576 do
-    chunk.append([d1.to_msgpack, d2.to_msgpack])
+    chunk.append([d1.to_json, d2.to_json])
   end
   
 benchmark:
