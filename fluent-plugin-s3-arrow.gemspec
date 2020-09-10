@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Extends the fluent-plugin-s3 (de)compression algorithm to enable red-arrow compression.}
   spec.description   = %q{Extends the fluent-plugin-s3 (de)compression algorithm to enable red-arrow compression.}
-  spec.homepage      = "https://github.com/kanga333/fluent-plugin-s3-arrow"
+  spec.homepage      = "https://github.com/red-data-tools/fluent-plugin-s3-arrow"
   spec.license       = "Apache-2.0"
 
   test_files, files  = `git ls-files -z`.split("\x0").partition do |f|
