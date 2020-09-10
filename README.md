@@ -55,8 +55,6 @@ Example of fluent-plugin-s3 configuration.
 </match>
 ```
 
-## Copyright
+## License
 
-* Copyright(c) 2020- kanga333
-* License
-  * Apache License, Version 2.0
+Apache License, Version 2.0
