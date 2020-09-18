@@ -40,7 +40,7 @@ prelude: |-
   d1 = {"test_string" => 'record1', "test_uint64" => 1}
   d2 = {"test_string" => 'record2', "test_uint64" => 2}
 
-  while chunk.bytesize < 1048576 do
+  while chunk.bytesize < 8388608 do
     chunk.append([d1.to_json + "\n", d2.to_json + "\n"])
   end
   
