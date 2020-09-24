@@ -49,7 +49,7 @@ class S3OutputTest < Test::Unit::TestCase
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
       d1 = {"test_string" => 'record1', "test_uint64" => 1}
       d2 = {"test_string" => 'record2', "test_uint64" => 2}
-      chunk.append([d1.to_json, d2.to_json])
+      chunk.append([d1.to_json + "\n", d2.to_json + "\n"])
       
       Tempfile.create do |tmp|
         c.compress(chunk, tmp)
@@ -75,7 +75,7 @@ class S3OutputTest < Test::Unit::TestCase
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
       d1 = {"test_string" => 'record1', "test_uint64" => 1}
       d2 = {"test_string" => 'record2', "test_uint64" => 2}
-      chunk.append([d1.to_json, d2.to_json])
+      chunk.append([d1.to_json + "\n", d2.to_json + "\n"])
       codec = Arrow::Codec.new(data.to_sym)
       
       Tempfile.create do |tmp|
@@ -110,7 +110,7 @@ class S3OutputTest < Test::Unit::TestCase
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
       d1 = {"test_string" => 'record1', "test_uint64" => 1}
       d2 = {"test_string" => 'record2', "test_uint64" => 2}
-      chunk.append([d1.to_json, d2.to_json])
+      chunk.append([d1.to_json + "\n", d2.to_json + "\n"])
       
       Tempfile.create do |tmp|
         c.compress(chunk, tmp)
