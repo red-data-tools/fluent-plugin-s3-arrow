@@ -5,6 +5,7 @@ require "fluent/test/helpers"
 require "fluent/plugin/out_s3"
 require "fluent/plugin/s3_compressor_arrow"
 require "json"
+require "faker"
 
 GZIP_CONFIG = %[
   s3_bucket test_bucket
@@ -17,8 +18,9 @@ ARROW_CONFIG = %[
   <compress>
     arrow_format arrow
     schema [
-      {"name": "test_string", "type": "string"},
-      {"name": "test_uint64", "type": "uint64"}
+      {"name": "test_string",  "type": "string"},
+      {"name": "test_uint64",  "type": "uint64"},
+      {"name": "test_boolean", "type": "boolean"}
     ]
   </compress>
 ]
@@ -28,12 +30,18 @@ def create_compressor(conf = CONFIG)
   end.configure(conf).instance.instance_variable_get(:@compressor)
 end
 
+state = ENV.fetch("FAKER_RANDOM_SEED", 17).to_i
+Faker::Config.random = Random.new(state)
+
 def create_chunk
     chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
-    d1 = {"test_string" => 'record1', "test_uint64" => 1}
-    d2 = {"test_string" => 'record2', "test_uint64" => 2}
-    while chunk.bytesize < 8388608 do
-      chunk.append([d1.to_json + "\n", d2.to_json + "\n"])
+    while chunk.bytesize < 8388608 do 
+      data = {
+          "test_string"  => Faker::Name.name,
+          "test_uint64"  => Faker::Number.number(digits: 11).to_i,
+          "test_boolean" => Faker::Boolean.boolean
+      }
+      chunk.append([data.to_json + "\n"])
     end
     return chunk
 end
