@@ -16,7 +16,8 @@ ARROW_CONFIG = %[
   s3_bucket test_bucket
   store_as arrow
   <compress>
-    arrow_format arrow
+    arrow_format parquet
+    arrow_compression gzip
     schema [
       {"name": "test_string",  "type": "string"},
       {"name": "test_uint64",  "type": "uint64"},
