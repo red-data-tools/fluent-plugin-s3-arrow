@@ -48,7 +48,9 @@ class S3OutputTest < Test::Unit::TestCase
 
       chunk = Fluent::Plugin::Buffer::MemoryChunk.new(Object.new)
       d1 = {"test_string" => 'record1', "test_uint64" => 1}
-      d2 = {"test_string" => 'record2', "test_uint64" => 2}
+      d2 = {"test_string" => 'record2', "test_uint64" => 2, "unexpected_field" => false}
+      expected_d2 = d2.dup
+      expected_d2.delete "unexpected_field"
       chunk.append([d1.to_json + "\n", d2.to_json + "\n"])
       
       Tempfile.create do |tmp|
@@ -56,7 +58,7 @@ class S3OutputTest < Test::Unit::TestCase
         Arrow::MemoryMappedInputStream.open(tmp.path) do |input|
           reader = Arrow::RecordBatchFileReader.new(input)
           reader.each do |record_batch|
-            assert_equal([d1, d2], record_batch.collect(&:to_h))
+            assert_equal([d1, expected_d2], record_batch.collect(&:to_h))
           end
         end
       end
