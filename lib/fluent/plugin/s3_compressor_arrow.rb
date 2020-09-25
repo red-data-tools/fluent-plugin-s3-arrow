@@ -11,29 +11,29 @@ module Fluent::Plugin
         :feather => [:gzip, :snappy],
       }
 
-      config_section :compress, multi: false do
+      config_section :arrow, multi: false do
         config_param :schema, :array
-        config_param :arrow_format, :enum, list: [:arrow, :feather, :parquet], default: :arrow
+        config_param :format, :enum, list: [:arrow, :feather, :parquet], default: :arrow
         SUPPORTED_COMPRESSION = [:gzip, :snappy, :zstd]
-        config_param :arrow_compression, :enum, list: SUPPORTED_COMPRESSION, default: nil
-        config_param :arrow_chunk_size, :integer, default: 1024
+        config_param :compression, :enum, list: SUPPORTED_COMPRESSION, default: nil
+        config_param :chunk_size, :integer, default: 1024
       end
 
       def configure(conf)
         super
 
-        if INVALID＿COMBINATIONS[@compress.arrow_format]&.include? @compress.arrow_compression
-          raise Fluent::ConfigError, "#{@compress.arrow_format} unsupported with #{@compress.arrow_format}"
+        if INVALID＿COMBINATIONS[@arrow.format]&.include? @arrow.compression
+          raise Fluent::ConfigError, "#{@arrow.format} unsupported with #{@arrow.format}"
         end
 
-        @arrow_schema = Arrow::Schema.new(@compress.schema)
+        @schema = Arrow::Schema.new(@arrow.schema)
         @options = Arrow::JSONReadOptions.new
-        @options.schema = @arrow_schema
+        @options.schema = @schema
         @options.unexpected_field_behavior = :ignore
       end
 
       def ext
-        @compress.arrow_format.freeze
+        @arrow.format.freeze
       end
 
       def content_type
@@ -46,9 +46,9 @@ module Fluent::Plugin
         table = Arrow::JSONReader.new(stream, @options)
 
         table.read.save(tmp,
-          format: @compress.arrow_format,
-          chunk_size: @compress.arrow_chunk_size,
-          compression: @compress.arrow_compression,
+          format: @arrow.format,
+          chunk_size: @arrow.chunk_size,
+          compression: @arrow.compression,
         )
       end
     end
