@@ -1,0 +1,17 @@
+[
+    {
+        "name": "test_string",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "test_uint64",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "test_boolean",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    }
+]
