@@ -8,6 +8,14 @@ RUN apt update && \
 RUN apt update && \
     apt install -y -V libparquet-glib-dev
 
+RUN cd /var/tmp/ && \
+    curl -L -O https://github.com/reproio/columnify/releases/download/v0.1.0/columnify_0.1.0_Linux_x86_64.tar.gz && \
+    tar xvfz columnify_0.1.0_Linux_x86_64.tar.gz && \
+    chmod +x columnify && \
+    mv columnify /usr/local/bin/ && \
+    rm -rf /var/tmp/* && \
+    which columnify
+
 RUN mkdir /app
 WORKDIR /app
 COPY . /app

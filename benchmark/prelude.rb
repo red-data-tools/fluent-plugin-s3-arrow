@@ -26,6 +26,17 @@ ARROW_CONFIG = %[
   </compress>
 ]
 
+COLUMNIFY_CONFIG = %[
+  s3_bucket test_bucket
+  store_as parquet
+  <compress>
+    schema_type bigquery
+    schema_file benchmark/schema.bq.json
+    record_type jsonl
+    parquet_compression_codec gzip
+  </compress>
+]
+
 def create_compressor(conf = CONFIG)
   Fluent::Test::Driver::Output.new(Fluent::Plugin::S3Output) do
   end.configure(conf).instance.instance_variable_get(:@compressor)

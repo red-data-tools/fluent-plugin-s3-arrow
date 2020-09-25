@@ -1,9 +1,11 @@
 prelude: |-
   $LOAD_PATH.unshift(File.expand_path("benchmark"))
   require 'prelude'
+  require 's3_compressor_parquet'
 
   gzip = create_compressor GZIP_CONFIG
   arrow = create_compressor ARROW_CONFIG
+  columnify = create_compressor COLUMNIFY_CONFIG
   chunk = create_chunk
   
 benchmark:
@@ -14,4 +16,8 @@ benchmark:
   arrow: |-
     Tempfile.create do |tmp|
       arrow.compress(chunk, tmp)
+    end
+  columnify: |-
+    Tempfile.create do |tmp|
+      columnify.compress(chunk, tmp)
     end
