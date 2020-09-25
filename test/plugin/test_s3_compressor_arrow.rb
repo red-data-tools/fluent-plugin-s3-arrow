@@ -14,15 +14,15 @@ class S3OutputTest < Test::Unit::TestCase
       {"name": "test_string", "type": "string"},
       {"name": "test_uint64", "type": "uint64"},
     ]
-    CONFIG = config_element("ROOT", "", S3_CONFIG, [config_element("compress", "", {"schema" => SCHEMA})])
+    CONFIG = config_element("ROOT", "", S3_CONFIG, [config_element("arrow", "", {"schema" => SCHEMA})])
 
     def test_configure
       d = create_driver
       c = d.instance.instance_variable_get(:@compressor)
       assert_equal :arrow, c.ext
       assert_equal 'application/x-apache-arrow-file', c.content_type
-      assert c.instance_variable_get(:@arrow_schema).is_a?(Arrow::Schema)
-      assert_equal 1024, c.instance_variable_get(:@compress).arrow_chunk_size
+      assert c.instance_variable_get(:@schema).is_a?(Arrow::Schema)
+      assert_equal 1024, c.instance_variable_get(:@arrow).chunk_size
     end
 
     data(
@@ -32,9 +32,9 @@ class S3OutputTest < Test::Unit::TestCase
     )
     def test_invalid_configure
       format, compression = data
-      arrow_config = config_element("compress", "", { "schema" => SCHEMA,
-        "arrow_format" => format,
-        "arrow_compression" => compression,
+      arrow_config = config_element("arrow", "", { "schema" => SCHEMA,
+        "format" => format,
+        "compression" => compression,
       })
       config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
       assert_raise Fluent::ConfigError do
@@ -65,9 +65,9 @@ class S3OutputTest < Test::Unit::TestCase
     end
 
     data(gzip: "gzip", zstd: "zstd")
-    def test_compress_with_arrow_compression
-      arrow_config = config_element("compress", "", { "schema" => SCHEMA,
-        "arrow_compression" => data,
+    def test_compress_with_compression
+      arrow_config = config_element("arrow", "", { "schema" => SCHEMA,
+        "compression" => data,
       })
       config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
 
@@ -100,9 +100,9 @@ class S3OutputTest < Test::Unit::TestCase
     )
     def test_compress_with_format
       format, compression = data
-      arrow_config = config_element("compress", "", { "schema" => SCHEMA,
-        "arrow_format" => format,
-        "arrow_compression" => compression,
+      arrow_config = config_element("arrow", "", { "schema" => SCHEMA,
+        "format" => format,
+        "compression" => compression,
       })
       config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
 

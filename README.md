@@ -46,12 +46,12 @@ Example of fluent-plugin-s3 configuration.
   </format>
 
   store_as arrow
-  <compress>
+  <arrow>
     schema [
       {"name": "test_string", "type": "string"},
       {"name": "test_uint64", "type": "uint64"}
     ]
-  </compress>
+  </arrow>
 </match>
 ```
 
