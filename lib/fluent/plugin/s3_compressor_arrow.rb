@@ -22,10 +22,14 @@ module Fluent::Plugin
       def configure(conf)
         super
 
-        @arrow_schema = ::Arrow::Schema.new(@compress.schema)
         if INVALID＿COMBINATIONS[@compress.arrow_format]&.include? @compress.arrow_compression
           raise Fluent::ConfigError, "#{@compress.arrow_format} unsupported with #{@compress.arrow_format}"
         end
+
+        @arrow_schema = Arrow::Schema.new(@compress.schema)
+        @options = Arrow::JSONReadOptions.new
+        @options.schema = @arrow_schema
+        @options.unexpected_field_behavior = :ignore
       end
 
       def ext
@@ -39,7 +43,7 @@ module Fluent::Plugin
       def compress(chunk, tmp)
         buffer = Arrow::Buffer.new(chunk.read)
         stream = Arrow::BufferInputStream.new(buffer)
-        table = Arrow::JSONReader.new(stream)
+        table = Arrow::JSONReader.new(stream, @options)
 
         table.read.save(tmp,
           format: @compress.arrow_format,
