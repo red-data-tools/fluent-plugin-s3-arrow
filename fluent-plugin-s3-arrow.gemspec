@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["kanga333"]
   spec.email   = ["e411z7t40w@gmail.com"]
 
-  spec.summary       = %q{Extends the fluent-plugin-s3 (de)compression algorithm to enable red-arrow compression.}
-  spec.description   = %q{Extends the fluent-plugin-s3 (de)compression algorithm to enable red-arrow compression.}
+  spec.summary       = %q{Extends the fluent-plugin-s3 compression algorithm to enable red-arrow compression.}
+  spec.description   = %q{Extends the fluent-plugin-s3 compression algorithm to enable red-arrow compression.}
   spec.homepage      = "https://github.com/red-data-tools/fluent-plugin-s3-arrow"
   spec.license       = "Apache-2.0"
 
