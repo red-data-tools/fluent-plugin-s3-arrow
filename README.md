@@ -1,6 +1,6 @@
 # fluent-plugin-s3-arrow
 
-Extends the [fluent-plugin-s3](https://github.com/fluent/fluent-plugin-s3) (de)compression algorithm to enable red-arrow compression.
+Extends the [fluent-plugin-s3](https://github.com/fluent/fluent-plugin-s3) compression algorithm to enable red-arrow compression.
 
 ## Installation
 
