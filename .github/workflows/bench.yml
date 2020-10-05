@@ -13,7 +13,11 @@ jobs:
     - name: 'bench'
       id: 'bench'
       run: |
-        docker run fluent-plugin-s3-arrow /bin/bash -c "benchmark-driver benchmark/compress.yml"
+        docker run fluent-plugin-s3-arrow /bin/bash -c "benchmark-driver benchmark/compress.yml -o markdown" | tee benchmark.md
+    - uses: actions/upload-artifact@v2
+      with:
+        name: benchmark.md
+        path: benchmark.md
     - name: 'bench memory'
       id: 'bench_mem'
       run: |
