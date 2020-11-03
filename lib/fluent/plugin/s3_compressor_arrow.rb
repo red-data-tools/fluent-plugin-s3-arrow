@@ -16,7 +16,7 @@ module Fluent::Plugin
         config_param :format, :enum, list: [:arrow, :feather, :parquet], default: :arrow
         SUPPORTED_COMPRESSION = [:gzip, :snappy, :zstd]
         config_param :compression, :enum, list: SUPPORTED_COMPRESSION, default: nil
-        config_param :chunk_size, :integer, default: 1024
+        config_param :chunk_size, :integer, default: nil
       end
 
       def configure(conf)
@@ -45,11 +45,13 @@ module Fluent::Plugin
         stream = Arrow::BufferInputStream.new(buffer)
         table = Arrow::JSONReader.new(stream, @options)
 
-        table.read.save(tmp,
+        save_options = {
           format: @arrow.format,
-          chunk_size: @arrow.chunk_size,
           compression: @arrow.compression,
-        )
+        }
+        save_options[:chunk_size] = @arrow.chunk_size if @arrow.chunk_size
+        
+        table.read.save(tmp,save_options)
       end
     end
   end
