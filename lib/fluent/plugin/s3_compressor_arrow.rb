@@ -16,7 +16,7 @@ module Fluent::Plugin
         config_param :format, :enum, list: [:arrow, :feather, :parquet], default: :arrow
         SUPPORTED_COMPRESSION = [:gzip, :snappy, :zstd]
         config_param :compression, :enum, list: SUPPORTED_COMPRESSION, default: nil
-        config_param :chunk_size, :integer, default: 1024
+        config_param :chunk_size, :integer, default: nil
       end
 
       def configure(conf)

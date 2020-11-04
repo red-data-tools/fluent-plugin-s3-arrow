@@ -22,7 +22,6 @@ class S3OutputTest < Test::Unit::TestCase
       assert_equal :arrow, c.ext
       assert_equal 'application/x-apache-arrow-file', c.content_type
       assert c.instance_variable_get(:@schema).is_a?(Arrow::Schema)
-      assert_equal 1024, c.instance_variable_get(:@arrow).chunk_size
     end
 
     data(
