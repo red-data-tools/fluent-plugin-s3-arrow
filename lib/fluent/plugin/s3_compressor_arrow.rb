@@ -45,13 +45,11 @@ module Fluent::Plugin
         stream = Arrow::BufferInputStream.new(buffer)
         table = Arrow::JSONReader.new(stream, @options)
 
-        save_options = {
+        table.read.save(tmp,
           format: @arrow.format,
+          chunk_size: @arrow.chunk_size,
           compression: @arrow.compression,
-        }
-        save_options[:chunk_size] = @arrow.chunk_size if @arrow.chunk_size
-        
-        table.read.save(tmp,save_options)
+        )
       end
     end
   end
