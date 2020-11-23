@@ -34,40 +34,46 @@ module FluentPluginS3Arrow
 
       def convert_to_arrow_schema(columns)
         columns.map do |column|
-          {name: column.name, type: convert_type(column.type)}
+          convert_type(column)
         end
       end
 
-      def convert_type(glue_type)
-        case glue_type
+      def convert_type(column)
+        arrow_column = {name: column.name}
+        case column.type
         when "boolean", "float", "double"
-          glue_type
+          arrow_column[:type] = column.type
         when "tinyint"
-          "int8"
+          arrow_column[:type] = "int8"
         when "smallint"
-          "int16"
+          arrow_column[:type] = "int16"
         when "int"
-          "int32"
+          arrow_column[:type] = "int32"
         when "bigint"
-          "int64"
-        when /^decimal.*/ # TODO: Fix the inability to convert.
-          glue_type.gsub(/decimal/, 'decimal128')
+          arrow_column[:type] = "int64"
+        when /^decimal.*/
+          arrow_column[:type] = "decimal128"
+          precision, scale = parse_decimal(column.type)
+          arrow_column[:precision] = precision
+          arrow_column[:scale] = scale
         when /^char.*/,/^varchar.*/,"string"
-          "string"
+          arrow_column[:type] = "string"
         when "binary"
-          "binary"
+          arrow_column[:type] = "binary"
         when "date"
-          "date32"
+          arrow_column[:type] = "date32"
         when "timestamp"
-          "date64"
+          arrow_column[:type] = "date64"
         else
           # TODO: Need support for complex types such as ARRAY, MAP and STRUCT.
-          raise AWSGlueConverteTypeError, "Input type is not supported: #{glue_type}"
+          raise AWSGlueConverteTypeError, "Input type is not supported: #{column.type}"
         end
+        arrow_column
       end
 
-      def convert_decimal(decimal_str)
-        decimal_str.gsub(/decimal/, 'decimal128')
+      def parse_decimal(decimal_str)
+        /decimal\((\d+),(\d+)\)/ =~ decimal_str
+        return $1.to_i, $2.to_i
       end
     end
   end
