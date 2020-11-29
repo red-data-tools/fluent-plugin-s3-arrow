@@ -26,7 +26,9 @@ class AWSGlueTest < Test::Unit::TestCase
           Aws::Glue::Types::Column.new({name: "k", type: "string"}),
           Aws::Glue::Types::Column.new({name: "l", type: "binary"}),
           Aws::Glue::Types::Column.new({name: "m", type: "date"}),
-          Aws::Glue::Types::Column.new({name: "n", type: "timestamp"})
+          Aws::Glue::Types::Column.new({name: "n", type: "timestamp"}),
+          Aws::Glue::Types::Column.new({name: "o", type: "array<array<string>>"}),
+          Aws::Glue::Types::Column.new({name: "p", type: "struct<p1:string,p2:struct<c1:string,c2:string>,p3:string>"})
         ]
       }
       actual = @catalog.resolve_arrow_schema('test')
@@ -44,7 +46,9 @@ class AWSGlueTest < Test::Unit::TestCase
         {name: "k", type: "string"},
         {name: "l", type: "binary"},
         {name: "m", type: "date32"},
-        {name: "n", type: "date64"}
+        {name: "n", type: "date64"},
+        {name: "o", type: "list", field: {name: "", type: "list", field: {name: "", type: "string"}}},
+        {name: "p", type: "struct", fields: [{name: "p1", type: "string"},{name: "p2", type: "struct", fields: [{name: "c1", type: "string"},{name: "c2", type: "string"}]},{name: "p3", type: "string"}]}
       ]
       
       assert_equal actual, expect
