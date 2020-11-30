@@ -14,21 +14,20 @@ module FluentPluginS3Arrow
       end
 
       def initialize(options={})
-        @database_name = options[:database_name] || "default"
-        # TODO: Scrutinize the necessary args.
         @client = Aws::Glue::Client.new(options)
       end 
 
-      def resolve_arrow_schema(name)
-        columns = fetch_glue_columns(name)
+      def resolve_arrow_schema(table_name, database_name="default", catalog_id=nil)
+        columns = fetch_glue_columns(table_name, database_name, catalog_id)
         convert_to_arrow_schema(columns)
       end
 
       private
-      def fetch_glue_columns(name)
+      def fetch_glue_columns(table_name, database_name, catalog_id)
         glue_schema = @client.get_table({
-          database_name: @database_name,
-          name: name
+          catalog_id: catalog_id,
+          database_name: database_name,
+          name: table_name
         })
         glue_schema.table.storage_descriptor.columns
       end
