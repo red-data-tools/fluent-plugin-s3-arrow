@@ -8,7 +8,7 @@ class AWSGlueTest < Test::Unit::TestCase
     end
 
     
-    def test_resolve_arrow_schema
+    def test_to_arrow
       stub(@schema).fetch_glue_schema{
         [
           Aws::Glue::Types::Column.new({name: "a", type: "boolean"}),
@@ -50,7 +50,7 @@ class AWSGlueTest < Test::Unit::TestCase
       ]
       
       assert_equal actual, expect
-      assert_nothing_raised("Invalid arroe schema: #{actual}") { Arrow::Schema.new(actual) }
+      assert_nothing_raised("Invalid arrow schema: #{actual}") { Arrow::Schema.new(actual) }
       
     end
 end
