@@ -48,12 +48,12 @@ module FluentPluginS3Arrow
           arrow_field[:type] = "int32"
         when "bigint"
           arrow_field[:type] = "int64"
-        when /^decimal.*/
+        when /\Adecimal/
           arrow_field[:type] = "decimal128"
           precision, scale = parse_decimal(glue_field.type)
           arrow_field[:precision] = precision
           arrow_field[:scale] = scale
-        when /^char.*/,/^varchar.*/,"string"
+        when /\Achar/,/\Avarchar/,"string"
           arrow_field[:type] = "string"
         when "binary"
           arrow_field[:type] = "binary"
@@ -61,10 +61,10 @@ module FluentPluginS3Arrow
           arrow_field[:type] = "date32"
         when "timestamp"
           arrow_field[:type] = "date64"
-        when /^array.*/
+        when /\Aarray/
           arrow_field[:type] = "list"
           arrow_field[:field] = parse_array(glue_field.type)
-        when /^struct.*/
+        when /\Astruct/
           arrow_field[:type] = "struct"
           arrow_field[:fields] = parse_struct(glue_field.type)
         else
@@ -75,19 +75,22 @@ module FluentPluginS3Arrow
       end
 
       def parse_decimal(str)
-        /decimal\((\d+),(\d+)\)/ =~ str
-        return $1.to_i, $2.to_i
+        matched = str.match(/\Adecimal\((\d+),(\d+)\)\z/)
+        raise ConvertError, "Parse error on decimal type: #{str}" if matched.nil?
+        return matched[1].to_i, matched[2].to_i
       end
 
       def parse_array(str)
-        /^array<(.*)>/ =~ str
-        convert_to_arrow_field(Field.new("", $1))
+        matched = str.match(/\Aarray<(.*)>\z/)
+        raise ConvertError, "Parse error on array type: #{str}" if matched.nil?
+        convert_to_arrow_field(Field.new("", matched[1]))
       end
 
       def parse_struct(str)
         fields = []
-        /^struct<(.*)>/ =~ str
-        each_struct_fields($1) do |name, type|
+        matched = str.match(/\Astruct<(.*)>\z/)
+        raise ConvertError, "Parse error on struct type: #{str}" if matched.nil?
+        each_struct_fields(matched[1]) do |name, type|
           fields << convert_to_arrow_field(Field.new(name, type))
         end
         fields
