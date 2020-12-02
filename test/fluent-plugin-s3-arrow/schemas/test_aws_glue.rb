@@ -44,7 +44,7 @@ class AWSGlueTest < Test::Unit::TestCase
         {name: "k", type: "string"},
         {name: "l", type: "binary"},
         {name: "m", type: "date32"},
-        {name: "n", type: "date64"},
+        {name: "n", type: "timestamp", unit: "milli"},
         {name: "o", type: "list", field: {name: "", type: "list", field: {name: "", type: "string"}}},
         {name: "p", type: "struct", fields: [{name: "p1", type: "string"},{name: "p2", type: "struct", fields: [{name: "c1", type: "string"},{name: "c2", type: "string"}]},{name: "p3", type: "string"}]}
       ]

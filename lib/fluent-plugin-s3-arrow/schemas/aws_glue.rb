@@ -60,7 +60,8 @@ module FluentPluginS3Arrow
         when "date"
           arrow_field[:type] = "date32"
         when "timestamp"
-          arrow_field[:type] = "date64"
+          arrow_field[:type] = "timestamp"
+          arrow_field[:unit] = "milli"
         when /\Aarray/
           arrow_field[:type] = "list"
           arrow_field[:field] = parse_array(glue_field.type)
