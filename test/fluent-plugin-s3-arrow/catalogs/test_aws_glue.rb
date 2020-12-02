@@ -1,12 +1,10 @@
 require "helper"
-require 'arrow'
-require 'aws-sdk-glue'
 require "fluent-plugin-s3-arrow/catalogs"
 
 class AWSGlueTest < Test::Unit::TestCase
     def setup
       stub(Aws::Glue::Client).new
-      @catalog = FluentPluginS3Arrow::Catalogs.lookup("aws_glue").new()
+      @catalog = FluentPluginS3Arrow::Catalogs::AWSGlue.new()
     end
 
     

@@ -1,17 +1,11 @@
+require 'aws-sdk-glue'
+
 module FluentPluginS3Arrow
   module Catalogs
     class AWSGlue
       class Error < RuntimeError; end
       class ConvertError < Error; end
       class Column < Struct.new(:name, :type); end
-
-      Catalogs.register(:aws_glue, self)
-
-      class << self
-        def prepare
-          require 'aws-sdk-glue'
-        end
-      end
 
       def initialize(options={})
         @client = Aws::Glue::Client.new(options)

@@ -74,7 +74,7 @@ module Fluent::Plugin
 
         case @schema_from
         when :gelu
-          catalog = FluentPluginS3Arrow::Catalogs.lookup("aws_glue").new()
+          catalog = FluentPluginS3Arrow::Catalogs::AWSGlue.new()
           @schema = catalog.resolve_arrow_schema(:table, :database, :catalog)
         end
       end
