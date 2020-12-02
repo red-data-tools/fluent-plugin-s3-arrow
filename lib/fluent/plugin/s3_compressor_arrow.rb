@@ -73,9 +73,12 @@ module Fluent::Plugin
         require 'fluent-plugin-s3-arrow/schemas'
 
         case @schema_from
-        when :gelu
-          glue_schema = FluentPluginS3Arrow::Schemas::AWSGlue.new()
-          @schema = glue_schema.resolve_arrow_schema(:table, :database, :catalog)
+        when :glue
+          glue_schema = FluentPluginS3Arrow::Schemas::AWSGlue.new(@arrow.glue.table, {
+            catalog_id: @arrow.glue.catalog,
+            database_name: @arrow.glue.database,
+          })
+          @schema = glue_schema.to_arrow
         end
       end
     end

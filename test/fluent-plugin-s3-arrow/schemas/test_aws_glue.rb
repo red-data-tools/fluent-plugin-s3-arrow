@@ -4,12 +4,12 @@ require "fluent-plugin-s3-arrow/schemas"
 class AWSGlueTest < Test::Unit::TestCase
     def setup
       stub(Aws::Glue::Client).new
-      @schema = FluentPluginS3Arrow::Schemas::AWSGlue.new()
+      @schema = FluentPluginS3Arrow::Schemas::AWSGlue.new('test')
     end
 
     
     def test_resolve_arrow_schema
-      stub(@schema).fetch_glue_columns{
+      stub(@schema).fetch_glue_schema{
         [
           Aws::Glue::Types::Column.new({name: "a", type: "boolean"}),
           Aws::Glue::Types::Column.new({name: "b", type: "tinyint"}),
@@ -29,7 +29,7 @@ class AWSGlueTest < Test::Unit::TestCase
           Aws::Glue::Types::Column.new({name: "p", type: "struct<p1:string,p2:struct<c1:string,c2:string>,p3:string>"})
         ]
       }
-      actual = @schema.resolve_arrow_schema('test')
+      actual = @schema.to_arrow
       expect = [
         {name: "a", type: "boolean"},
         {name: "b", type: "int8"},
