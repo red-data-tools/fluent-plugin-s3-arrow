@@ -1,8 +1,8 @@
 module FluentPluginS3Arrow
   module Catalogs
     class AWSGlue
-      class AWSGlueCatalogError < RuntimeError; end
-      class AWSGlueConverteTypeError < AWSGlueCatalogError; end
+      class Error < RuntimeError; end
+      class ConvertError < Error; end
       class Column < Struct.new(:name, :type); end
 
       Catalogs.register(:aws_glue, self)
@@ -72,7 +72,7 @@ module FluentPluginS3Arrow
           arrow_column[:fields] = parse_struct(column.type)
         else
           # TODO: Need support for MAP type.
-          raise AWSGlueConverteTypeError, "Input type is not supported: #{column.type}"
+          raise ConvertError, "Input type is not supported: #{column.type}"
         end
         arrow_column
       end
