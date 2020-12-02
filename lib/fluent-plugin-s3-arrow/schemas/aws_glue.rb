@@ -14,8 +14,8 @@ module FluentPluginS3Arrow
         @client = Aws::Glue::Client.new(options)
       end 
 
-      def to_arrow()
-        glue_schema = fetch_glue_schema()
+      def to_arrow
+        glue_schema = fetch_glue_schema
         convert_to_arrow_schema(glue_schema)
       end
 

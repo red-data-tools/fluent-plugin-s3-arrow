@@ -36,7 +36,7 @@ module Fluent::Plugin
           raise Fluent::ConfigError, "Either schema or schema_from must be specified"
         end
 
-        resolve_schema()
+        resolve_schema
         @options = Arrow::JSONReadOptions.new
         @options.schema = @schema
         @options.unexpected_field_behavior = :ignore
