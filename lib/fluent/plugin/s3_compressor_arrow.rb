@@ -70,12 +70,12 @@ module Fluent::Plugin
           return
         end
 
-        require 'fluent-plugin-s3-arrow/catalogs'
+        require 'fluent-plugin-s3-arrow/schemas'
 
         case @schema_from
         when :gelu
-          catalog = FluentPluginS3Arrow::Catalogs::AWSGlue.new()
-          @schema = catalog.resolve_arrow_schema(:table, :database, :catalog)
+          glue_schema = FluentPluginS3Arrow::Schemas::AWSGlue.new()
+          @schema = glue_schema.resolve_arrow_schema(:table, :database, :catalog)
         end
       end
     end

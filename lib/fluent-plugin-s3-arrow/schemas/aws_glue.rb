@@ -1,7 +1,7 @@
 require 'aws-sdk-glue'
 
 module FluentPluginS3Arrow
-  module Catalogs
+  module Schemas
     class AWSGlue
       class Error < RuntimeError; end
       class ConvertError < Error; end
