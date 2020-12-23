@@ -9,8 +9,8 @@ module FluentPluginS3Arrow
 
       def initialize(table_name, options={})
         @table_name = table_name
-        @database_name = options[:database_name] || "default"
-        @catalog_id = options[:catalog_id]
+        @database_name = options.delete(:database_name) || "default"
+        @catalog_id = options.delete(:catalog_id)
         @client = Aws::Glue::Client.new(options)
       end 
 
