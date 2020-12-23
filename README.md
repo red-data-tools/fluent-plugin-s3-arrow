@@ -1,6 +1,6 @@
 # fluent-plugin-s3-arrow
 
-Extends the [fluent-plugin-s3](https://github.com/fluent/fluent-plugin-s3) compression algorithm to enable red-arrow compression.
+Extends the [fluent-plugin-s3](https://github.com/fluent/fluent-plugin-s3) compression algorithm to enable [red-arrow](https://github.com/apache/arrow/tree/master/ruby/red-arrow) compression.
 
 ## Installation
 
@@ -33,7 +33,7 @@ $ bundle
 
 ## Configuration
 
-Example of fluent-plugin-s3 configuration.
+Example of fluent-plugin-s3-arrow configuration.
 
 ```
 <match pattern>
@@ -47,13 +47,73 @@ Example of fluent-plugin-s3 configuration.
 
   store_as arrow
   <arrow>
-    schema [
-      {"name": "test_string", "type": "string"},
-      {"name": "test_uint64", "type": "uint64"}
-    ]
+    format parquet
+    compression gzip
+
+    schema_from static
+    <static>
+      schema [
+        {"name": "test_string", "type": "string"},
+        {"name": "test_uint64", "type": "uint64"}
+      ]
+    </static>
   </arrow>
 </match>
 ```
+
+### format and compression
+
+This plugin supports multiple columnar formats and compressions by using red-arrow. Valid settings are below.
+
+|  format  |  compression |
+| ---- | ---- |
+|  arrow | gzip, zstd |
+|  feather | zstd |
+|  parquet   | gzip, snappy, zstd |
+
+### schema
+
+Schema of columnar formats.
+#### schema_from static
+
+Set the schema statically.
+
+```
+schema_from static
+<static>
+  schema [
+    {"name": "test_string", "type": "string"},
+    {"name": "test_uint64", "type": "uint64"}
+  ]
+</static>
+```
+
+##### schema (required)
+
+An array containing the names and types of the fields.
+#### schema_from glue
+
+Retrieve the schema from the AWS Glue Data Catalog.
+
+```
+schema_from glue
+<glue>
+  catalog test_catalog
+  database test_db
+  table test_table
+</glue>
+```
+
+##### catalog
+
+The name of the data catalog for which to retrieve the definition. The default value is the same as the [AWS API CatalogId](https://docs.aws.amazon.com/glue/latest/webapi/API_GetTable.html).
+
+##### database
+
+The name of the database for which to retrieve the definition.  The default value is `default`.
+##### table (required)
+
+The name of the table for which to retrieve the definition.
 
 ## License
 
