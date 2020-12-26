@@ -28,7 +28,7 @@ class AWSGlueTest < Test::Unit::TestCase
         ]
       }
       actual = @schema.to_arrow
-      expect = [
+      expect = Arrow::Schema.new([
         {name: "a", type: "boolean"},
         {name: "b", type: "int8"},
         {name: "c", type: "int16"},
@@ -43,10 +43,9 @@ class AWSGlueTest < Test::Unit::TestCase
         {name: "l", type: "date32"},
         {name: "m", type: "list", field: {name: "", type: "list", field: {name: "", type: "string"}}},
         {name: "n", type: "struct", fields: [{name: "p1", type: "string"},{name: "p2", type: "struct", fields: [{name: "c1", type: "string"},{name: "c2", type: "string"}]},{name: "p3", type: "string"}]}
-      ]
+      ])
       
       assert_equal expect, actual
-      assert_nothing_raised("Invalid arrow schema: #{actual}") { Arrow::Schema.new(actual) }
       
     end
 end

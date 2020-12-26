@@ -73,7 +73,7 @@ module Fluent::Plugin
             catalog_id: @arrow.glue.catalog,
             database_name: @arrow.glue.database,
           })
-          Arrow::Schema.new(glue_schema.to_arrow)
+          glue_schema.to_arrow
         end
       end
     end
