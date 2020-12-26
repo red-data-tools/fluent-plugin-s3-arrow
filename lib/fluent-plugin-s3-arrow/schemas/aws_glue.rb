@@ -30,13 +30,13 @@ module FluentPluginS3Arrow
       end
 
       def convert_to_arrow_schema(glue_schema)
-        arrow_fields = glue_schema.map do |glue_field|
-          convert_to_arrow_field(glue_field)
+        arrow_schema_description = glue_schema.map do |glue_field|
+          convert_to_arrow_field_description(glue_field)
         end
-        Arrow::Schema.new(arrow_fields)
+        Arrow::Schema.new(arrow_schema_description)
       end
 
-      def convert_to_arrow_field(glue_field)
+      def convert_to_arrow_field_description(glue_field)
         arrow_field = {name: glue_field.name}
         case glue_field.type
         when "boolean", "float", "double"
@@ -71,7 +71,7 @@ module FluentPluginS3Arrow
       def parse_array(str)
         matched = str.match(/\Aarray<(.*)>\z/)
         raise ConvertError, "Parse error on array type: #{str}" if matched.nil?
-        convert_to_arrow_field(Field.new("", matched[1]))
+        convert_to_arrow_field_description(Field.new("", matched[1]))
       end
 
       def parse_struct(str)
@@ -79,7 +79,7 @@ module FluentPluginS3Arrow
         matched = str.match(/\Astruct<(.*)>\z/)
         raise ConvertError, "Parse error on struct type: #{str}" if matched.nil?
         each_struct_fields(matched[1]) do |name, type|
-          fields << convert_to_arrow_field(Field.new(name, type))
+          fields << convert_to_arrow_field_description(Field.new(name, type))
         end
         fields
       end
