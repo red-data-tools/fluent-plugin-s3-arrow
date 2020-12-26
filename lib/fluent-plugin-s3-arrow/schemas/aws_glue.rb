@@ -85,14 +85,14 @@ module FluentPluginS3Arrow
       end
 
       def each_struct_fields(str)
-        s, e, nest = 0, 0, 0
+        start, nest = 0, 0
         name = ""
-        str.each_char do |c|
+        str.each_char.with_index do |c, i|
           case c
           when ':'
             if nest == 0
-              name = str[s..e-1]
-              s = e + 1
+              name = str[start...i]
+              start = i + 1
             end
           when '<'
             nest += 1
@@ -100,13 +100,14 @@ module FluentPluginS3Arrow
             nest -= 1
           when ','
             if nest == 0
-              yield(name, str[s..e-1])
-              s = e + 1
+              type = str[start...i]
+              yield(name, type)
+              start = i + 1
             end
           end
-          e += 1
         end
-        yield(name, str[s..e-1])
+        type = str[start..]
+        yield(name, type)
       end
 
     end
