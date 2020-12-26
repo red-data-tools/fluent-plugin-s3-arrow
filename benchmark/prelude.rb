@@ -18,11 +18,14 @@ ARROW_CONFIG = %[
   <arrow>
     format parquet
     compression gzip
-    schema [
-      {"name": "test_string",  "type": "string"},
-      {"name": "test_uint64",  "type": "uint64"},
-      {"name": "test_boolean", "type": "boolean"}
-    ]
+    schema_from static
+    <static>
+      schema [
+        {"name": "test_string",  "type": "string"},
+        {"name": "test_uint64",  "type": "uint64"},
+        {"name": "test_boolean", "type": "boolean"}
+      ]
+    </static>
   </arrow>
 ]
 

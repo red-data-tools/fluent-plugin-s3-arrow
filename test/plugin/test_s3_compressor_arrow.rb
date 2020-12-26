@@ -10,18 +10,19 @@ class S3OutputTest < Test::Unit::TestCase
     end
   
     S3_CONFIG = {"s3_bucket" => "test", "store_as" => "arrow"}
-    SCHEMA = [
+    SCHEMA = config_element("static", "", {"schema" => [
       {"name": "test_string", "type": "string"},
       {"name": "test_uint64", "type": "uint64"},
-    ]
-    CONFIG = config_element("ROOT", "", S3_CONFIG, [config_element("arrow", "", {"schema" => SCHEMA})])
+    ]})
+    ARROW_CONFIG = config_element("arrow", "", {"schema_from" => "static"}, [SCHEMA])
+    CONFIG = config_element("ROOT", "", S3_CONFIG, [ARROW_CONFIG])
 
     def test_configure
       d = create_driver
       c = d.instance.instance_variable_get(:@compressor)
       assert_equal :arrow, c.ext
       assert_equal 'application/x-apache-arrow-file', c.content_type
-      assert c.instance_variable_get(:@schema).is_a?(Arrow::Schema)
+      assert c.instance_variable_get(:@options).schema.is_a?(Arrow::Schema)
     end
 
     data(
@@ -31,10 +32,10 @@ class S3OutputTest < Test::Unit::TestCase
     )
     def test_invalid_configure
       format, compression = data
-      arrow_config = config_element("arrow", "", { "schema" => SCHEMA,
+      arrow_config = config_element("arrow", "", { "schema_from" => "static",
         "format" => format,
         "compression" => compression,
-      })
+      }, [SCHEMA])
       config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
       assert_raise Fluent::ConfigError do
         create_driver(config)
@@ -65,9 +66,9 @@ class S3OutputTest < Test::Unit::TestCase
 
     data(gzip: "gzip", zstd: "zstd")
     def test_compress_with_compression
-      arrow_config = config_element("arrow", "", { "schema" => SCHEMA,
+      arrow_config = config_element("arrow", "", { "schema_from" => "static",
         "compression" => data,
-      })
+      },[SCHEMA])
       config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
 
       d = create_driver(conf=config)
@@ -99,10 +100,10 @@ class S3OutputTest < Test::Unit::TestCase
     )
     def test_compress_with_format
       format, compression = data
-      arrow_config = config_element("arrow", "", { "schema" => SCHEMA,
+      arrow_config = config_element("arrow", "", { "schema_from" => "static",
         "format" => format,
         "compression" => compression,
-      })
+      },[SCHEMA])
       config = config_element("ROOT", "", S3_CONFIG, [arrow_config])
 
       d = create_driver(conf=config)
