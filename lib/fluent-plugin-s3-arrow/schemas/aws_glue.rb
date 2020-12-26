@@ -7,7 +7,7 @@ module FluentPluginS3Arrow
       class ConvertError < Error; end
       class Field < Struct.new(:name, :type); end
 
-      def initialize(table_name, options={})
+      def initialize(table_name, **options)
         @table_name = table_name
         @database_name = options.delete(:database_name) || "default"
         @catalog_id = options.delete(:catalog_id)
@@ -30,9 +30,10 @@ module FluentPluginS3Arrow
       end
 
       def convert_to_arrow_schema(glue_schema)
-        glue_schema.map do |glue_field|
+        arrow_fields = glue_schema.map do |glue_field|
           convert_to_arrow_field(glue_field)
         end
+        Arrow::Schema.new(arrow_fields)
       end
 
       def convert_to_arrow_field(glue_field)
@@ -99,7 +100,7 @@ module FluentPluginS3Arrow
             nest -= 1
           when ','
             if nest == 0
-              yield(name ,str[s..e-1])
+              yield(name, str[s..e-1])
               s = e + 1
             end
           end

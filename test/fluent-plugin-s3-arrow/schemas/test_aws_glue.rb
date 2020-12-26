@@ -45,7 +45,7 @@ class AWSGlueTest < Test::Unit::TestCase
         {name: "n", type: "struct", fields: [{name: "p1", type: "string"},{name: "p2", type: "struct", fields: [{name: "c1", type: "string"},{name: "c2", type: "string"}]},{name: "p3", type: "string"}]}
       ]
       
-      assert_equal actual, expect
+      assert_equal expect, actual
       assert_nothing_raised("Invalid arrow schema: #{actual}") { Arrow::Schema.new(actual) }
       
     end
