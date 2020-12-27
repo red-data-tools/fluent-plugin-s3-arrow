@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name    = "fluent-plugin-s3-arrow"
-  spec.version = "0.1.0"
+  spec.version = "0.2.0"
   spec.authors = ["kanga333"]
   spec.email   = ["e411z7t40w@gmail.com"]
 
