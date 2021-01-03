@@ -1,5 +1,8 @@
 # fluent-plugin-s3-arrow
 
+[![Gem Version](https://badge.fury.io/rb/fluent-plugin-s3-arrow.svg)](https://badge.fury.io/rb/fluent-plugin-s3-arrow)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://rubydoc.info/gems/fluent-plugin-s3-arrow)
+
 Extends the [fluent-plugin-s3](https://github.com/fluent/fluent-plugin-s3) compression algorithm to enable [red-arrow](https://github.com/apache/arrow/tree/master/ruby/red-arrow) compression.
 
 ## Installation
