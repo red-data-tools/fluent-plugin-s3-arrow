@@ -1,7 +1,10 @@
 name: "test"
 on:
   push:
-    - master
+    branches:
+      - master
+    tags:
+      - "*"
   pull_request:
 
 jobs:
