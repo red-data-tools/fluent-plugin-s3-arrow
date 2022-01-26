@@ -39,7 +39,7 @@ module FluentPluginS3Arrow
       def convert_to_arrow_field_description(glue_field)
         arrow_field = {name: glue_field.name}
         case glue_field.type
-        when "boolean", "float", "double"
+        when "boolean", "float", "double", "binary"
           arrow_field[:type] = glue_field.type
         when "tinyint"
           arrow_field[:type] = "int8"
@@ -51,10 +51,16 @@ module FluentPluginS3Arrow
           arrow_field[:type] = "int64"
         when /\Achar/,/\Avarchar/,"string"
           arrow_field[:type] = "string"
-        when "binary"
-          arrow_field[:type] = "binary"
         when "date"
           arrow_field[:type] = "date32"
+        when "timestamp"
+          arrow_field[:type] = "timestamp"
+          arrow_field[:unit] = "nano"
+        when /\Adecimal/
+          precision, scale = parse_decimal(glue_field.type)
+          arrow_field[:type] = "decimal128"
+          arrow_field[:precision] = precision
+          arrow_field[:scale] = scale
         when /\Aarray/
           arrow_field[:type] = "list"
           arrow_field[:field] = parse_array(glue_field.type)
@@ -62,10 +68,16 @@ module FluentPluginS3Arrow
           arrow_field[:type] = "struct"
           arrow_field[:fields] = parse_struct(glue_field.type)
         else
-          # TODO: Need support for MAP, DECIMAL, TIMESTAMP type.
-          raise ConvertError, "Input type is not supported: #{glue_field.type}"
+          # Map type is currently unsupported because arrow's json-reader doesn't support it.
+          raise ConvertError, "Input type #{glue_field.type} is not supported"
         end
         arrow_field
+      end
+
+      def parse_decimal(str)
+        matched = str.match(/\Adecimal\((\d+),(\d+)\)\z/)
+        raise ConvertError, "Parse error on decimal type: #{str}" if matched.nil?
+        return matched[1].to_i, matched[2].to_i
       end
 
       def parse_array(str)
